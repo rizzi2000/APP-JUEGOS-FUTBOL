@@ -380,6 +380,7 @@ const JuegoSubastaClasica = ({ onVolver }) => {
       !resultado // Si el efecto fue nulo (ej. no había jugadores para robar)
     ) {
       const eventoSeguro = EVENTOS_SORPRESA.find((e) => e.id === "INYECCION");
+      // eslint-disable-next-line no-undef
       jugadoresActualizados = eventoSeguro.efecto(contextoEfecto);
       descripcion = eventoSeguro.descripcion;
     }

@@ -32,6 +32,7 @@ const JuegoAdivinaJugador = ({ onVolver }) => {
   const [mensaje, setMensaje] = useState("");
   const [jugadoresBloqueados, setJugadoresBloqueados] = useState([]); // IDs de quienes ya adivinaron (esta ronda)
   const [jugadoresBloqueadosPista, setJugadoresBloqueadosPista] = useState([]); // IDs de quienes fallaron (esta pista)
+  const [jugadoresUsados, setJugadoresUsados] = useState([]);
   
   // Cargar nuevo jugador
   const cargarNuevoJugador = useCallback(async () => {
@@ -43,17 +44,22 @@ const JuegoAdivinaJugador = ({ onVolver }) => {
     setJugadoresBloqueados([]);
     setJugadoresBloqueadosPista([]);
 
-    const data = await obtenerJugadorMisterioso();
+    const data = await obtenerJugadorMisterioso(jugadoresUsados);
     
     if (data && data.nombre && data.trayectoria) {
       setJugadorMisterioso(data);
       setEstadoJuego("jugando");
+      setJugadoresUsados(prevUsados => [...prevUsados, data.nombre]);
     } else {
       console.error("Error de IA:", data);
+      if (jugadoresUsados.length > 200) { // Ejemplo de límite
+         setMensaje("Se acabaron los jugadores. Reiniciando historial...");
+         setJugadoresUsados([]); // Reinicia el historial local
+      }
       setMensaje("La IA está ocupada. Intentando de nuevo...");
       setTimeout(cargarNuevoJugador, 2000); // Reintenta si falla
     }
-  }, []);
+  }, [jugadoresUsados]);
 
   const iniciarJuego = () => {
     setJugadores(
@@ -64,6 +70,7 @@ const JuegoAdivinaJugador = ({ onVolver }) => {
         puntos: 0,
       }))
     );
+    setJugadoresUsados([]);
     setFase("juego");
     cargarNuevoJugador();
   };
